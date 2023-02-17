@@ -46,7 +46,7 @@ public with sharing class Part2  extends TriggerHandler {
 
         /** Better */
         Map<Id, Contact> mapContact = new Map<Id, Contact>(cts);
-        List<Task> tasks2 = [
+        List<Task> task2 = [
                 SELECT Id
                 FROM Task
                 WHERE Whoid in :mapContact.keySet()
@@ -56,6 +56,34 @@ public with sharing class Part2  extends TriggerHandler {
             요하지 않다고 가정할 때) 루프를 사용하여 세트를 채우는 것보다 훨씬 더 효율적입니다(일반적으
             로 5배 빠른 것보다 빠름).
         */
+
+        // Grouping Objects - 개체 그룹화
+
+        Map<Id, Contact> mapContact2 = new Map<Id, Contact>(cts);
+
+        List<Task> tasks = [
+                SELECT Id, ActivityDate, Description
+                FROM Task
+                WHERE WhoId IN :mapContact2.keySet()
+                ORDER BY ActivityDate DESC
+                LIMIT 500
+        ];
+
+        Map<Date, List<Task>> tasksByWeek = new Map<Date, List<Task>>();
+
+        for(Task t : tasks) {
+            // Perform global task operation here
+            // Group by week
+            Date weekStart = t.ActivityDate.toStartOfWeek();
+            if(tasksByWeek.get(weekStart) == null) {
+                tasksByWeek.put(weekStart, new List<Task>());
+            }
+            tasksByWeek.get(weekStart).add(t);
+        }
+
+        //Perform week related operation here
+
+
 
     }
 
